@@ -8,13 +8,18 @@ import com.springbootplayground.product.web.dto.ProductRequest;
 import java.util.List;
 import org.springframework.stereotype.Service;
 
+import com.springbootplayground.product.event.KafkaProducerService;
+import com.springbootplayground.product.event.ProductCreatedEvent;
+
 @Service
 public class ProductService {
 
     private final ProductRepository repository;
+    private final KafkaProducerService kafkaProducerService;
 
-    public ProductService(ProductRepository repository) {
+    public ProductService(ProductRepository repository, KafkaProducerService kafkaProducerService) {
         this.repository = repository;
+        this.kafkaProducerService = kafkaProducerService;
     }
 
     public List<Product> getAll() {
@@ -32,7 +37,22 @@ public class ProductService {
         }
         Product product = new Product();
         applyRequest(product, request);
-        return repository.save(product);
+        Product createdProduct = repository.save(product);
+
+        // Publish ProductCreatedEvent to Kafka
+        ProductCreatedEvent event = new ProductCreatedEvent(
+                createdProduct.getId(),
+                createdProduct.getName(),
+                createdProduct.getDescription(),
+                createdProduct.getPrice(),
+                createdProduct.getSku(),
+                createdProduct.getQuantity(),
+                createdProduct.getActive(),
+                createdProduct.getCreatedAt()
+        );
+        kafkaProducerService.sendProductCreatedEvent(event);
+
+        return createdProduct;
     }
 
     public Product update(Long id, ProductRequest request) {
