@@ -1,0 +1,36 @@
+@baseUrl = http://localhost:8080
+
+### List products
+GET {{baseUrl}}/api/products
+
+### Get product by id
+GET {{baseUrl}}/api/products/1
+
+### Create product
+POST {{baseUrl}}/api/products
+Content-Type: application/json
+
+{
+  "name": "Weekend Duffle",
+  "description": "Canvas duffle with leather straps.",
+  "price": 89.00,
+  "sku": "DF-WEEKEND-009",
+  "quantity": 14,
+  "active": true
+}
+
+### Update product
+PUT {{baseUrl}}/api/products/1
+Content-Type: application/json
+
+{
+  "name": "Starter Backpack",
+  "description": "Updated description.",
+  "price": 64.99,
+  "sku": "BP-STARTER-001",
+  "quantity": 20,
+  "active": true
+}
+
+### Delete product
+DELETE {{baseUrl}}/api/products/1

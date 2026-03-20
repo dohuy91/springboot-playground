@@ -1,0 +1,17 @@
+services:
+  postgres:
+    image: postgres:17.4
+    container_name: springboot_playground_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: playground
+      POSTGRES_USER: playground
+      POSTGRES_PASSWORD: playground
+      TZ: UTC
+    ports:
+      - "6432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:
