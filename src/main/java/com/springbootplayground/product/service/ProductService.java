@@ -1,12 +1,12 @@
 package com.springbootplayground.product.service;
 
 import com.springbootplayground.product.entity.Product;
+import com.springbootplayground.product.exception.ProductNotFoundException;
+import com.springbootplayground.product.exception.ProductSkuAlreadyExistsException;
 import com.springbootplayground.product.repository.ProductRepository;
 import com.springbootplayground.product.web.dto.ProductRequest;
 import java.util.List;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class ProductService {
@@ -23,12 +23,12 @@ public class ProductService {
 
     public Product getById(Long id) {
         return repository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found"));
+                .orElseThrow(() -> new ProductNotFoundException(id));
     }
 
     public Product create(ProductRequest request) {
         if (repository.existsBySku(request.sku())) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "SKU already exists");
+            throw new ProductSkuAlreadyExistsException(request.sku());
         }
         Product product = new Product();
         applyRequest(product, request);
@@ -38,7 +38,7 @@ public class ProductService {
     public Product update(Long id, ProductRequest request) {
         Product product = getById(id);
         if (!product.getSku().equals(request.sku()) && repository.existsBySku(request.sku())) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "SKU already exists");
+            throw new ProductSkuAlreadyExistsException(request.sku());
         }
         applyRequest(product, request);
         return repository.save(product);
