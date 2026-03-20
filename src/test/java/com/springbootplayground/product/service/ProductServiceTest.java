@@ -6,6 +6,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.springbootplayground.product.event.KafkaProducerService;
 import com.springbootplayground.product.entity.Product;
 import com.springbootplayground.product.exception.ProductNotFoundException;
 import com.springbootplayground.product.exception.ProductSkuAlreadyExistsException;
@@ -25,11 +26,14 @@ class ProductServiceTest {
     @Mock
     private ProductRepository repository;
 
+    @Mock
+    private KafkaProducerService kafkaProducerService;
+
     private ProductService service;
 
     @BeforeEach
     void setUp() {
-        service = new ProductService(repository);
+        service = new ProductService(repository, kafkaProducerService);
     }
 
     @Test

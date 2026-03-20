@@ -10,17 +10,14 @@ import org.springframework.stereotype.Service;
 
 import com.springbootplayground.product.event.KafkaProducerService;
 import com.springbootplayground.product.event.ProductCreatedEvent;
+import lombok.RequiredArgsConstructor;
 
 @Service
+@RequiredArgsConstructor
 public class ProductService {
 
     private final ProductRepository repository;
     private final KafkaProducerService kafkaProducerService;
-
-    public ProductService(ProductRepository repository, KafkaProducerService kafkaProducerService) {
-        this.repository = repository;
-        this.kafkaProducerService = kafkaProducerService;
-    }
 
     public List<Product> getAll() {
         return repository.findAll();
