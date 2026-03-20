@@ -1,14 +1,17 @@
 package com.springbootplayground.common.web;
 
-import com.springbootplayground.common.exception.AlreadyExistsException;
-import com.springbootplayground.common.exception.BusinessException;
-import com.springbootplayground.common.exception.NotFoundException;
-import jakarta.servlet.http.HttpServletRequest;
 import java.time.Instant;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+
+import com.springbootplayground.common.exception.AlreadyExistsException;
+import com.springbootplayground.common.exception.BusinessException;
+import com.springbootplayground.common.exception.NotFoundException;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -30,13 +33,11 @@ public class GlobalExceptionHandler {
     }
 
     private HttpStatus mapStatus(BusinessException exception) {
-        if (exception instanceof NotFoundException) {
-            return HttpStatus.NOT_FOUND;
-        }
-        if (exception instanceof AlreadyExistsException) {
-            return HttpStatus.CONFLICT;
-        }
-        return HttpStatus.BAD_REQUEST;
+        return switch (exception) {
+            case NotFoundException ignored -> HttpStatus.NOT_FOUND;
+            case AlreadyExistsException ignored -> HttpStatus.CONFLICT;
+            default -> HttpStatus.BAD_REQUEST;
+        };
     }
 
     public record ErrorResponse(
