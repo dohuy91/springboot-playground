@@ -1,0 +1,41 @@
+#!/usr/bin/env sh
+
+set -eu
+
+SCRIPT_DIR="$(CDPATH= cd -- "$(dirname "$0")" && pwd)"
+
+needs_retry=0
+while read -r local_ref local_sha remote_ref remote_sha; do
+  [ -z "$local_sha" ] && continue
+
+  if [ "$remote_sha" = "0000000000000000000000000000000000000000" ]; then
+    range="$local_sha"
+  else
+    range="$remote_sha..$local_sha"
+  fi
+
+  empty_subjects="$(git log --format='%H%x09%s' "$range" | awk -F'\t' 'length($2)==0 {print $1}')"
+  [ -z "$empty_subjects" ] && continue
+
+  for sha in $empty_subjects; do
+    if [ "$sha" = "$(git rev-parse HEAD)" ]; then
+      msg="$($SCRIPT_DIR/lib/commit_message_generator.sh --commit "$sha")"
+      if [ -n "$msg" ]; then
+        GIT_COMMITTER_DATE="$(git show -s --format=%cI "$sha")" git commit --amend -m "$msg" --no-verify >/dev/null
+        echo "Auto-generated commit message for HEAD: $msg"
+        needs_retry=1
+      fi
+    else
+      echo "Push blocked: found earlier commit without message ($sha)."
+      echo "Please reword that commit and push again."
+      exit 1
+    fi
+  done
+done
+
+if [ "$needs_retry" -eq 1 ]; then
+  echo "HEAD message was auto-generated. Re-run push to send updated commit."
+  exit 1
+fi
+
+exit 0

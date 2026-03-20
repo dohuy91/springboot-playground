@@ -1,0 +1,25 @@
+#!/usr/bin/env sh
+
+set -eu
+
+MSG_FILE="$1"
+SOURCE="${2:-}"
+
+# Keep merge/squash/revert generated messages untouched.
+case "$SOURCE" in
+  merge|squash|commit)
+    exit 0
+    ;;
+esac
+
+NON_COMMENT_CONTENT="$(grep -v '^[[:space:]]*#' "$MSG_FILE" | sed '/^[[:space:]]*$/d' || true)"
+if [ -n "$NON_COMMENT_CONTENT" ]; then
+  exit 0
+fi
+
+SCRIPT_DIR="$(CDPATH= cd -- "$(dirname "$0")" && pwd)"
+GENERATED_MSG="$($SCRIPT_DIR/lib/commit_message_generator.sh --staged)"
+
+if [ -n "$GENERATED_MSG" ]; then
+  printf "%s\n" "$GENERATED_MSG" > "$MSG_FILE"
+fi
