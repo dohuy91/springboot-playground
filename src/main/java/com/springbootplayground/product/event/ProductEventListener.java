@@ -1,7 +1,7 @@
 package com.springbootplayground.product.event;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.springbootplayground.product.service.KafkaMessageRecordService;
+import com.springbootplayground.messaging.service.KafkaMessageRecordService;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;

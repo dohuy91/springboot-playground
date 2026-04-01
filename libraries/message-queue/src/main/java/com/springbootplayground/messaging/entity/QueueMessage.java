@@ -1,4 +1,4 @@
-package com.springbootplayground.product.entity;
+package com.springbootplayground.messaging.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -18,7 +18,7 @@ import lombok.Setter;
 @Table(name = "kafka_message_records")
 @Getter
 @Setter
-public class KafkaMessageRecord {
+public class QueueMessage {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -77,8 +77,8 @@ public class KafkaMessageRecord {
         updatedAt = Instant.now();
     }
 
-    public static KafkaMessageRecord sent(SourceType sourceType, String topic, String messageKey, String payload) {
-        KafkaMessageRecord r = new KafkaMessageRecord();
+    public static QueueMessage sent(SourceType sourceType, String topic, String messageKey, String payload) {
+        QueueMessage r = new QueueMessage();
         r.sourceType = sourceType;
         r.status = MessageStatus.SENT;
         r.topic = topic;
@@ -88,9 +88,9 @@ public class KafkaMessageRecord {
         return r;
     }
 
-    public static KafkaMessageRecord failed(SourceType sourceType, String topic, String messageKey,
-                                            String payload, Exception ex) {
-        KafkaMessageRecord r = new KafkaMessageRecord();
+    public static QueueMessage failed(SourceType sourceType, String topic, String messageKey,
+                                       String payload, Exception ex) {
+        QueueMessage r = new QueueMessage();
         r.sourceType = sourceType;
         r.status = MessageStatus.FAILED;
         r.topic = topic;

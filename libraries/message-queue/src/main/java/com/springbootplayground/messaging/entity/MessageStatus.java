@@ -1,4 +1,4 @@
-package com.springbootplayground.product.entity;
+package com.springbootplayground.messaging.entity;
 
 public enum MessageStatus {
     SENT, FAILED, EXHAUSTED

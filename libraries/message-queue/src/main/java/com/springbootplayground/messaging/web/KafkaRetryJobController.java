@@ -1,4 +1,4 @@
-package com.springbootplayground.product.web;
+package com.springbootplayground.messaging.web;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,12 +26,6 @@ public class KafkaRetryJobController {
         this.kafkaRetryJob = kafkaRetryJob;
     }
 
-    /**
-     * Manually triggers the Kafka retry batch job.
-     * Each invocation uses a unique timestamp parameter so Spring Batch treats it as a new job instance.
-     *
-     * @return job execution ID and final batch status.
-     */
     @PostMapping("/retry")
     public ResponseEntity<String> triggerRetry() {
         try {
@@ -41,7 +35,7 @@ public class KafkaRetryJobController {
             JobExecution execution = jobLauncher.run(kafkaRetryJob, params);
             log.info("kafkaRetryJob started: executionId={}, status={}", execution.getId(), execution.getStatus());
             return ResponseEntity.ok(
-                    "kafkaRetryJob started — executionId=%d, status=%s"
+                    "kafkaRetryJob started - executionId=%d, status=%s"
                             .formatted(execution.getId(), execution.getStatus()));
         } catch (Exception ex) {
             log.error("Failed to launch kafkaRetryJob", ex);

@@ -6,11 +6,12 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.springbootplayground.common.config.KafkaProperties;
-import com.springbootplayground.product.entity.KafkaMessageRecord;
-import com.springbootplayground.product.entity.MessageStatus;
-import com.springbootplayground.product.entity.SourceType;
-import com.springbootplayground.product.repository.KafkaMessageRecordRepository;
+import com.springbootplayground.messaging.config.KafkaProperties;
+import com.springbootplayground.messaging.entity.MessageStatus;
+import com.springbootplayground.messaging.entity.QueueMessage;
+import com.springbootplayground.messaging.entity.SourceType;
+import com.springbootplayground.messaging.repository.KafkaMessageRecordRepository;
+import com.springbootplayground.messaging.service.KafkaMessageRecordService;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -55,9 +56,9 @@ class KafkaMessageRecordServiceTest {
 
         service.recordProducerSent("products", "sku-1", "{\"sku\":\"sku-1\"}");
 
-        ArgumentCaptor<KafkaMessageRecord> captor = ArgumentCaptor.forClass(KafkaMessageRecord.class);
+        ArgumentCaptor<QueueMessage> captor = ArgumentCaptor.forClass(QueueMessage.class);
         verify(repository).save(captor.capture());
-        KafkaMessageRecord saved = captor.getValue();
+        QueueMessage saved = captor.getValue();
         assertEquals(MessageStatus.SENT, saved.getStatus());
         assertEquals(SourceType.PRODUCER, saved.getSourceType());
         assertEquals("products", saved.getTopic());
@@ -75,9 +76,9 @@ class KafkaMessageRecordServiceTest {
 
         service.recordProducerFailed("products", "sku-2", "{}", new RuntimeException("broker down"));
 
-        ArgumentCaptor<KafkaMessageRecord> captor = ArgumentCaptor.forClass(KafkaMessageRecord.class);
+        ArgumentCaptor<QueueMessage> captor = ArgumentCaptor.forClass(QueueMessage.class);
         verify(repository).save(captor.capture());
-        KafkaMessageRecord saved = captor.getValue();
+        QueueMessage saved = captor.getValue();
         assertEquals(MessageStatus.FAILED, saved.getStatus());
         assertEquals(SourceType.PRODUCER, saved.getSourceType());
         assertEquals("broker down", saved.getExceptionMessage());
@@ -103,9 +104,9 @@ class KafkaMessageRecordServiceTest {
 
         service.recordConsumerSuccess(consumerRecord("products", "sku-3", "{}", 2, 42L));
 
-        ArgumentCaptor<KafkaMessageRecord> captor = ArgumentCaptor.forClass(KafkaMessageRecord.class);
+        ArgumentCaptor<QueueMessage> captor = ArgumentCaptor.forClass(QueueMessage.class);
         verify(repository).save(captor.capture());
-        KafkaMessageRecord saved = captor.getValue();
+        QueueMessage saved = captor.getValue();
         assertEquals(MessageStatus.SENT, saved.getStatus());
         assertEquals(SourceType.CONSUMER, saved.getSourceType());
         assertEquals(2, saved.getPartitionNumber());
@@ -124,9 +125,9 @@ class KafkaMessageRecordServiceTest {
                 consumerRecord("products", "sku-4", "bad-payload", 1, 5L),
                 new RuntimeException("deserialization error"));
 
-        ArgumentCaptor<KafkaMessageRecord> captor = ArgumentCaptor.forClass(KafkaMessageRecord.class);
+        ArgumentCaptor<QueueMessage> captor = ArgumentCaptor.forClass(QueueMessage.class);
         verify(repository).save(captor.capture());
-        KafkaMessageRecord saved = captor.getValue();
+        QueueMessage saved = captor.getValue();
         assertEquals(MessageStatus.FAILED, saved.getStatus());
         assertEquals(SourceType.CONSUMER, saved.getSourceType());
         assertEquals(1, saved.getPartitionNumber());
@@ -139,7 +140,7 @@ class KafkaMessageRecordServiceTest {
 
     @Test
     void markSuccessSetsStatusToSentAndClearsException() {
-        KafkaMessageRecord record = KafkaMessageRecord.failed(
+        QueueMessage record = QueueMessage.failed(
                 SourceType.PRODUCER, "products", "k", "{}", new RuntimeException("err"));
         when(repository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
@@ -152,7 +153,7 @@ class KafkaMessageRecordServiceTest {
 
     @Test
     void markExhaustedSetsStatusToExhausted() {
-        KafkaMessageRecord record = KafkaMessageRecord.failed(
+        QueueMessage record = QueueMessage.failed(
                 SourceType.CONSUMER, "products", "k", "{}", null);
         when(repository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
@@ -168,7 +169,7 @@ class KafkaMessageRecordServiceTest {
         when(properties.getRetry()).thenReturn(retryProps);
         when(repository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
-        KafkaMessageRecord record = KafkaMessageRecord.failed(
+        QueueMessage record = QueueMessage.failed(
                 SourceType.PRODUCER, "products", "k", "{}", null);
 
         service.markRetrying(record);

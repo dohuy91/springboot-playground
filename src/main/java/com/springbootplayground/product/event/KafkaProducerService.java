@@ -2,7 +2,7 @@ package com.springbootplayground.product.event;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.springbootplayground.product.service.KafkaMessageRecordService;
+import com.springbootplayground.messaging.service.KafkaMessageRecordService;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;

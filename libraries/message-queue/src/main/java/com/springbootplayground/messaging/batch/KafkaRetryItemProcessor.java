@@ -1,37 +1,26 @@
-package com.springbootplayground.product.batch;
+package com.springbootplayground.messaging.batch;
 
+import com.springbootplayground.messaging.config.KafkaProperties;
+import com.springbootplayground.messaging.entity.MessageStatus;
+import com.springbootplayground.messaging.entity.QueueMessage;
 import java.time.Instant;
 import java.util.concurrent.ExecutionException;
-
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.infrastructure.item.ItemProcessor;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
-import com.springbootplayground.common.config.KafkaProperties;
-import com.springbootplayground.product.entity.KafkaMessageRecord;
-import com.springbootplayground.product.entity.MessageStatus;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-
-/**
- * Attempts to replay a failed Kafka message record.
- * <ul>
- *   <li>PRODUCER failures: re-publishes the stored payload to the original topic.</li>
- *   <li>CONSUMER failures: re-publishes the payload so the listener can re-process it.</li>
- * </ul>
- * On success the record status is set to SENT; on failure the retry count is incremented
- * and the next retry window is scheduled. Records that exceed maxRetries are marked EXHAUSTED.
- */
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class KafkaRetryItemProcessor implements ItemProcessor<KafkaMessageRecord, KafkaMessageRecord> {
+public class KafkaRetryItemProcessor implements ItemProcessor<QueueMessage, QueueMessage> {
 
     private final KafkaTemplate<String, String> kafkaTemplate;
     private final KafkaProperties properties;
 
     @Override
-    public KafkaMessageRecord process(KafkaMessageRecord record) {
+    public QueueMessage process(QueueMessage record) {
         int maxRetries = properties.getRetry().getMaxRetries();
 
         if (record.getRetryCount() >= maxRetries) {
@@ -42,16 +31,12 @@ public class KafkaRetryItemProcessor implements ItemProcessor<KafkaMessageRecord
         }
 
         try {
-            // Both PRODUCER and CONSUMER failures are replayed by re-publishing to the original topic.
-            // CONSUMER failures will be re-consumed by ProductEventListener.
             kafkaTemplate.send(record.getTopic(), record.getMessageKey(), record.getPayload()).get();
-
             log.info("Successfully replayed record id={} (source={}, topic={})",
                     record.getId(), record.getSourceType(), record.getTopic());
             record.setStatus(MessageStatus.SENT);
             record.setExceptionClass(null);
             record.setExceptionMessage(null);
-
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             handleRetryFailure(record, e, maxRetries);
@@ -62,7 +47,7 @@ public class KafkaRetryItemProcessor implements ItemProcessor<KafkaMessageRecord
         return record;
     }
 
-    private void handleRetryFailure(KafkaMessageRecord record, Exception cause, int maxRetries) {
+    private void handleRetryFailure(QueueMessage record, Exception cause, int maxRetries) {
         int nextCount = record.getRetryCount() + 1;
         log.warn("Retry attempt {}/{} failed for record id={}: {}",
                 nextCount, maxRetries, record.getId(), cause.getMessage());

@@ -1,6 +1,6 @@
-package com.springbootplayground.common.config;
+package com.springbootplayground.messaging.config;
 
-import com.springbootplayground.product.service.KafkaMessageRecordService;
+import com.springbootplayground.messaging.service.KafkaMessageRecordService;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -41,7 +41,6 @@ public class KafkaConsumerConfig {
                 new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory);
 
-        // After maxRetries retries with a fixed backoff, the recoverer writes the record to DB.
         FixedBackOff backOff = new FixedBackOff(
                 kafkaProperties.getRetry().getBackoffSeconds() * 1000L,
                 kafkaProperties.getRetry().getMaxRetries()
