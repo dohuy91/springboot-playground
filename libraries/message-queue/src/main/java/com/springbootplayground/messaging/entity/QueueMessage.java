@@ -1,24 +1,21 @@
 package com.springbootplayground.messaging.entity;
 
 import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import java.time.Instant;
 import lombok.Getter;
 import lombok.Setter;
 
-@Entity
-@Table(name = "kafka_message_records")
+@jakarta.persistence.Entity
+@Table(name = "queue_messages")
 @Getter
 @Setter
-public class QueueMessage {
+public class QueueMessage extends Entity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -58,26 +55,6 @@ public class QueueMessage {
 
     @Column(name = "next_retry_at")
     private Instant nextRetryAt;
-
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private Instant createdAt;
-
-    @Column(name = "updated_at", nullable = false)
-    private Instant updatedAt;
-
-    @PrePersist
-    @SuppressWarnings("unused")
-    void onCreate() {
-        Instant now = Instant.now();
-        createdAt = now;
-        updatedAt = now;
-    }
-
-    @PreUpdate
-    @SuppressWarnings("unused")
-    void onUpdate() {
-        updatedAt = Instant.now();
-    }
 
     public static QueueMessage sent(SourceType sourceType, String topic, String messageKey, String payload) {
         QueueMessage r = new QueueMessage();

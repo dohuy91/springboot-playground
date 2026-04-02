@@ -34,7 +34,7 @@ public class KafkaConsumerConfig {
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, String> kafkaListenerContainerFactory(
             ConsumerFactory<String, String> consumerFactory,
-            QueueMessageService kafkaMessageRecordService,
+            QueueMessageService queueMessageService,
             KafkaProperties kafkaProperties
     ) {
         ConcurrentKafkaListenerContainerFactory<String, String> factory =
@@ -46,7 +46,7 @@ public class KafkaConsumerConfig {
                 kafkaProperties.getRetry().getMaxRetries()
         );
         DefaultErrorHandler errorHandler = new DefaultErrorHandler(
-                (record, exception) -> kafkaMessageRecordService.recordConsumerFailed(record, exception),
+                (record, exception) -> queueMessageService.recordConsumerFailed(record, exception),
                 backOff
         );
         factory.setCommonErrorHandler(errorHandler);
