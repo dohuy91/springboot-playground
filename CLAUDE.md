@@ -95,6 +95,8 @@ com.springbootplayground.
 
 ### Class Naming
 
+Follow these patterns (also enforced by SonarQube rules `java:S100`, `java:S101`, `java:S116`, `java:S117`, `java:S119`, `java:S120`):
+
 | Type | Pattern | Example |
 |------|---------|---------|
 | Entity | `<Domain>` | `Product`, `QueueMessage` |
@@ -106,6 +108,13 @@ com.springbootplayground.
 | Event/DTO | `<Domain><Action>Event` / `<Domain>Request` | `ProductCreatedEvent`, `ProductRequest` |
 | Exception | `<Domain><Reason>Exception` | `ProductNotFoundException` |
 | Properties | `<Feature>Properties` | `KafkaProperties` |
+
+- Class names: UpperCamelCase (`java:S101`)
+- Method names: lowerCamelCase (`java:S100`)
+- Field / variable / parameter names: lowerCamelCase (`java:S116`, `java:S117`)
+- Package names: all lowercase, no underscores (`java:S120`)
+- Type parameters: single uppercase letter, e.g. `T`, `E` (`java:S119`)
+- Do **not** use restricted identifiers (`record`, `sealed`, `permits`, `var`, `yield`) as any identifier (`java:S6213`)
 
 ---
 
@@ -166,15 +175,70 @@ com.springbootplayground.
 - **Slice tests**: Use `@WebMvcTest` for controllers, `@DataJpaTest` for repositories.
 - **Integration tests**: Use `@SpringBootTest` only when full context is required.
 - Test classes mirror the source package structure under `src/test/java/`.
+- Test class names must end with `Test` (or `Tests`, `IT`) (`java:S3577`).
+- Every test method must contain at least one assertion (`java:S2699`).
+- Use `assertThrows` (JUnit 5) instead of `@Test(expected = …)` (`java:S5785`).
+- Pass `expected` first and `actual` second in `assertEquals` (`java:S2698`).
 - Use `SystemClockProvider` with a fixed `Clock` for deterministic time in tests.
 
 ---
 
 ## Logging
 
-- Use SLF4J via Lombok `@Slf4j`.
-- Always use parameterized log statements: `log.info("Created product: {}", product.getId())`.
+- Use SLF4J via Lombok `@Slf4j`. Never use `System.out` / `System.err` (`java:S106`).
+- Always use parameterized log statements: `log.info("Created product: {}", product.getId())`. (`java:S1643`)
 - Never concatenate strings in log calls.
+- Never call `Throwable.printStackTrace()` — log with SLF4J instead (`java:S4925`).
+
+---
+
+## Code Quality (SonarQube)
+
+All generated and modified Java code must comply with SonarQube rules. The full rule list is maintained in `.github/instructions/java-springboot.instructions.md`. Key rules by category are summarised below.
+
+### Bugs & Reliability
+| Rule | Summary |
+|------|---------|
+| `java:S2259` | Do not dereference potentially-null values without a null check |
+| `java:S1764` | Do not use identical expressions on both sides of a binary operator |
+| `java:S2142` | Do not silently swallow `InterruptedException`; re-interrupt or rethrow |
+| `java:S2093` | Use try-with-resources to close `AutoCloseable` resources |
+| `java:S1854` | Remove unused assignments; every assigned value must be read before being overwritten |
+| `java:S1871` | Two branches in the same conditional must not have identical implementations |
+
+### Code Smells & Maintainability
+| Rule | Summary |
+|------|---------|
+| `java:S112` | Never throw generic exceptions (`Exception`, `RuntimeException`, `Throwable`) |
+| `java:S1168` | Return empty collections/arrays instead of `null` |
+| `java:S1192` | Extract duplicated string literals to constants |
+| `java:S3740` | Never use raw generic types; always supply type parameters |
+| `java:S4144` | Methods must not have identical implementations — extract shared logic |
+| `java:S1128` | Remove unused import statements |
+| `java:S1481` | Remove unused local variables |
+| `java:S1068` | Remove unused private fields |
+| `java:S1155` | Use `Collection.isEmpty()` instead of `size() == 0` |
+| `java:S2293` | Use the diamond operator `<>` instead of repeating explicit type arguments |
+| `java:S1602` | Single-statement lambda bodies must not use a surrounding `{}` block |
+| `java:S5361` | Use `String.replace` (not `replaceAll`) when the first argument is a plain literal |
+
+### Security & Vulnerabilities
+| Rule | Summary |
+|------|---------|
+| `java:S6437` | Never hardcode credentials or API keys in source code |
+| `java:S2755` | Disable external entity processing in XML parsers (XXE) |
+| `java:S4790` | Do not use MD5 or SHA-1 for security-sensitive hashing |
+| `java:S5542` | Use a secure cipher mode and padding (e.g. AES/GCM/NoPadding); avoid ECB |
+| `java:S5344` | Never store passwords in plaintext; use bcrypt / Argon2 |
+
+### Performance
+| Rule | Summary |
+|------|---------|
+| `java:S1643` | Use `StringBuilder` instead of `+` inside loops |
+| `java:S3824` | Prefer `Map.computeIfAbsent` over `containsKey` + `put` |
+| `java:S4838` | Use `EnumSet` / `EnumMap` when keys are enum values |
+
+> For the complete rule set, see `.github/instructions/java-springboot.instructions.md § SonarQube Java Rules`.
 
 ---
 
