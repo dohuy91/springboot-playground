@@ -10,8 +10,8 @@ import com.springbootplayground.messaging.config.KafkaProperties;
 import com.springbootplayground.messaging.entity.MessageStatus;
 import com.springbootplayground.messaging.entity.QueueMessage;
 import com.springbootplayground.messaging.entity.SourceType;
-import com.springbootplayground.messaging.repository.KafkaMessageRecordRepository;
-import com.springbootplayground.messaging.service.KafkaMessageRecordService;
+import com.springbootplayground.messaging.repository.QueueMessageRepository;
+import com.springbootplayground.messaging.service.QueueMessageService;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,16 +24,16 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class KafkaMessageRecordServiceTest {
 
     @Mock
-    private KafkaMessageRecordRepository repository;
+    private QueueMessageRepository repository;
 
     @Mock
     private KafkaProperties properties;
 
-    private KafkaMessageRecordService service;
+    private QueueMessageService service;
 
     @BeforeEach
     void setUp() {
-        service = new KafkaMessageRecordService(repository, properties);
+        service = new QueueMessageService(repository, properties);
     }
 
     // -----------------------------------------------------------------------

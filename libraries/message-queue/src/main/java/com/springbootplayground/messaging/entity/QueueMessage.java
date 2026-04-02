@@ -66,6 +66,7 @@ public class QueueMessage {
     private Instant updatedAt;
 
     @PrePersist
+    @SuppressWarnings("unused")
     void onCreate() {
         Instant now = Instant.now();
         createdAt = now;
@@ -73,6 +74,7 @@ public class QueueMessage {
     }
 
     @PreUpdate
+    @SuppressWarnings("unused")
     void onUpdate() {
         updatedAt = Instant.now();
     }

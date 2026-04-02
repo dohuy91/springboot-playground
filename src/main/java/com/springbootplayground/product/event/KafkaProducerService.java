@@ -2,7 +2,7 @@ package com.springbootplayground.product.event;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.springbootplayground.messaging.service.KafkaMessageRecordService;
+import com.springbootplayground.messaging.service.QueueMessageService;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +16,7 @@ public class KafkaProducerService {
 
     private final KafkaTemplate<String, String> kafkaTemplate;
     private final ObjectMapper objectMapper;
-    private final KafkaMessageRecordService kafkaMessageRecordService;
+    private final QueueMessageService kafkaMessageRecordService;
 
     public void sendProductCreatedEvent(ProductCreatedEvent event) {
         String payload;

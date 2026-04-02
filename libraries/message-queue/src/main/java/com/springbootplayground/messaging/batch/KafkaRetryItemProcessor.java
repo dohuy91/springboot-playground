@@ -53,8 +53,8 @@ public class KafkaRetryItemProcessor implements ItemProcessor<QueueMessage, Queu
                 nextCount, maxRetries, record.getId(), cause.getMessage());
 
         record.setRetryCount(nextCount);
-        record.setExceptionClass(cause != null ? cause.getClass().getName() : null);
-        record.setExceptionMessage(cause != null ? cause.getMessage() : null);
+        record.setExceptionClass(cause.getClass().getName());
+        record.setExceptionMessage(cause.getMessage());
 
         if (nextCount >= maxRetries) {
             record.setStatus(MessageStatus.EXHAUSTED);

@@ -1,6 +1,6 @@
 package com.springbootplayground.messaging.config;
 
-import com.springbootplayground.messaging.service.KafkaMessageRecordService;
+import com.springbootplayground.messaging.service.QueueMessageService;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -34,7 +34,7 @@ public class KafkaConsumerConfig {
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, String> kafkaListenerContainerFactory(
             ConsumerFactory<String, String> consumerFactory,
-            KafkaMessageRecordService kafkaMessageRecordService,
+            QueueMessageService kafkaMessageRecordService,
             KafkaProperties kafkaProperties
     ) {
         ConcurrentKafkaListenerContainerFactory<String, String> factory =

@@ -2,7 +2,7 @@ package com.springbootplayground.messaging.batch;
 
 import com.springbootplayground.messaging.config.KafkaProperties;
 import com.springbootplayground.messaging.entity.QueueMessage;
-import com.springbootplayground.messaging.repository.KafkaMessageRecordRepository;
+import com.springbootplayground.messaging.repository.QueueMessageRepository;
 import java.time.Instant;
 import java.util.List;
 import org.springframework.batch.core.job.Job;
@@ -29,25 +29,25 @@ public class KafkaRetryJobConfig {
     @Bean
     public Step kafkaRetryStep(JobRepository jobRepository,
                                PlatformTransactionManager transactionManager,
-                               KafkaMessageRecordRepository repository,
+                               QueueMessageRepository repository,
                                KafkaProperties properties,
                                KafkaRetryItemProcessor processor) {
         return new StepBuilder("kafkaRetryStep", jobRepository)
-                .<QueueMessage, QueueMessage>chunk(10, transactionManager)
+                .<QueueMessage, QueueMessage>chunk(10)
                 .reader(retryItemReader(repository, properties))
                 .processor(processor)
                 .writer(retryItemWriter(repository))
                 .build();
     }
 
-    private ListItemReader<QueueMessage> retryItemReader(KafkaMessageRecordRepository repository,
+    private ListItemReader<QueueMessage> retryItemReader(QueueMessageRepository repository,
                                                           KafkaProperties properties) {
         List<QueueMessage> eligible =
                 repository.findRetryEligible(properties.getRetry().getMaxRetries(), Instant.now());
         return new ListItemReader<>(eligible);
     }
 
-    private ItemWriter<QueueMessage> retryItemWriter(KafkaMessageRecordRepository repository) {
+    private ItemWriter<QueueMessage> retryItemWriter(QueueMessageRepository repository) {
         return chunk -> repository.saveAll(chunk.getItems());
     }
 }

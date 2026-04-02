@@ -34,8 +34,8 @@ public class GlobalExceptionHandler {
 
     private HttpStatus mapStatus(BusinessException exception) {
         return switch (exception) {
-            case NotFoundException ignored -> HttpStatus.NOT_FOUND;
-            case AlreadyExistsException ignored -> HttpStatus.CONFLICT;
+            case NotFoundException _ -> HttpStatus.NOT_FOUND;
+            case AlreadyExistsException _ -> HttpStatus.CONFLICT;
             default -> HttpStatus.BAD_REQUEST;
         };
     }

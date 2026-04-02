@@ -1,7 +1,7 @@
 package com.springbootplayground.product.event;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.springbootplayground.messaging.service.KafkaMessageRecordService;
+import com.springbootplayground.messaging.service.QueueMessageService;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
@@ -14,7 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 public class ProductEventListener {
 
     private final ObjectMapper objectMapper;
-    private final KafkaMessageRecordService kafkaMessageRecordService;
+    private final QueueMessageService kafkaMessageRecordService;
 
     @KafkaListener(topics = "products", groupId = "${spring.kafka.consumer.group-id}")
     public void handle(ConsumerRecord<String, String> record) {
