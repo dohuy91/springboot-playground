@@ -1,4 +1,4 @@
-package com.springbootplayground.product.entity;
+package com.springbootplayground.common.entity;
 
 import java.time.Instant;
 
@@ -16,7 +16,7 @@ import lombok.Setter;
 @EntityListeners(AuditingEntityListener.class)
 @Getter
 @Setter
-public class Entity {
+public abstract class BaseEntity {
 
     @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)

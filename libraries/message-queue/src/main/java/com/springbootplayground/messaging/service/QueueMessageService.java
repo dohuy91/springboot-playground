@@ -35,46 +35,46 @@ public class QueueMessageService {
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void recordConsumerSuccess(ConsumerRecord<String, String> record) {
+    public void recordConsumerSuccess(ConsumerRecord<String, String> consumerRecord) {
         if (properties.getStorageMode() == KafkaProperties.StorageMode.ALL) {
-            QueueMessage r = QueueMessage.sent(SourceType.CONSUMER, record.topic(), record.key(), record.value());
-            r.setPartitionNumber(record.partition());
-            r.setMessageOffset(record.offset());
+            QueueMessage r = QueueMessage.sent(SourceType.CONSUMER, consumerRecord.topic(), consumerRecord.key(), consumerRecord.value());
+            r.setPartitionNumber(consumerRecord.partition());
+            r.setMessageOffset(consumerRecord.offset());
             queueMessageRepository.save(r);
         }
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void recordConsumerFailed(ConsumerRecord<?, ?> record, Exception ex) {
+    public void recordConsumerFailed(ConsumerRecord<?, ?> consumerRecord, Exception ex) {
         QueueMessage r = QueueMessage.failed(
                 SourceType.CONSUMER,
-                record.topic(),
-                record.key() != null ? record.key().toString() : null,
-                record.value() != null ? record.value().toString() : null,
+                consumerRecord.topic(),
+                consumerRecord.key() != null ? consumerRecord.key().toString() : null,
+                consumerRecord.value() != null ? consumerRecord.value().toString() : null,
                 ex);
-        r.setPartitionNumber(record.partition());
-        r.setMessageOffset(record.offset());
+        r.setPartitionNumber(consumerRecord.partition());
+        r.setMessageOffset(consumerRecord.offset());
         queueMessageRepository.save(r);
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void markSuccess(QueueMessage record) {
-        record.setStatus(MessageStatus.SENT);
-        record.setExceptionClass(null);
-        record.setExceptionMessage(null);
-        queueMessageRepository.save(record);
+    public void markSuccess(QueueMessage queueMessage) {
+        queueMessage.setStatus(MessageStatus.SENT);
+        queueMessage.setExceptionClass(null);
+        queueMessage.setExceptionMessage(null);
+        queueMessageRepository.save(queueMessage);
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void markRetrying(QueueMessage record) {
-        record.setRetryCount(record.getRetryCount() + 1);
-        record.setNextRetryAt(Instant.now().plusSeconds(properties.getRetry().getBackoffSeconds()));
-        queueMessageRepository.save(record);
+    public void markRetrying(QueueMessage queueMessage) {
+        queueMessage.setRetryCount(queueMessage.getRetryCount() + 1);
+        queueMessage.setNextRetryAt(Instant.now().plusSeconds(properties.getRetry().getBackoffSeconds()));
+        queueMessageRepository.save(queueMessage);
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void markExhausted(QueueMessage record) {
-        record.setStatus(MessageStatus.EXHAUSTED);
-        queueMessageRepository.save(record);
+    public void markExhausted(QueueMessage queueMessage) {
+        queueMessage.setStatus(MessageStatus.EXHAUSTED);
+        queueMessageRepository.save(queueMessage);
     }
 }

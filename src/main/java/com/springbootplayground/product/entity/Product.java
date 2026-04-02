@@ -2,6 +2,8 @@ package com.springbootplayground.product.entity;
 
 import java.math.BigDecimal;
 
+import com.springbootplayground.common.entity.BaseEntity;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -14,7 +16,7 @@ import lombok.Setter;
 @Table(name = "products")
 @Getter
 @Setter
-public class Product extends Entity {
+public class Product extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

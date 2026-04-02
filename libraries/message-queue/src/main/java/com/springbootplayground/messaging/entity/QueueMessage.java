@@ -1,5 +1,6 @@
 package com.springbootplayground.messaging.entity;
 
+import com.springbootplayground.common.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -15,7 +16,7 @@ import lombok.Setter;
 @Table(name = "queue_messages")
 @Getter
 @Setter
-public class QueueMessage extends Entity {
+public class QueueMessage extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
