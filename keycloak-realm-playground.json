@@ -1,0 +1,41 @@
+{
+  "realm": "playground",
+  "enabled": true,
+  "registrationAllowed": false,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "resetPasswordAllowed": true,
+  "clients": [
+    {
+      "clientId": "springboot-playground-api",
+      "name": "Spring Boot Playground API",
+      "enabled": true,
+      "publicClient": true,
+      "directAccessGrantsEnabled": true,
+      "standardFlowEnabled": false,
+      "serviceAccountsEnabled": false,
+      "protocol": "openid-connect",
+      "attributes": {
+        "pkce.code.challenge.method": "S256"
+      }
+    }
+  ],
+  "users": [
+    {
+      "username": "playground-user",
+      "enabled": true,
+      "email": "playground-user@example.com",
+      "emailVerified": true,
+      "firstName": "Playground",
+      "lastName": "User",
+      "requiredActions": [],
+      "credentials": [
+        {
+          "type": "password",
+          "value": "playground",
+          "temporary": false
+        }
+      ]
+    }
+  ]
+}

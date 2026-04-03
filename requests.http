@@ -1,14 +1,29 @@
 @baseUrl = http://localhost:8080
+@keycloakUrl = http://localhost:8081
+@realm = playground
+@clientId = springboot-playground-api
+@username = playground-user
+@password = playground
+@accessToken = REPLACE_WITH_ACCESS_TOKEN
+
+### Get access token
+POST {{keycloakUrl}}/realms/{{realm}}/protocol/openid-connect/token
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=password&client_id={{clientId}}&username={{username}}&password={{password}}
 
 ### List products
 GET {{baseUrl}}/api/products
+Authorization: Bearer {{accessToken}}
 
 ### Get product by id
 GET {{baseUrl}}/api/products/1
+Authorization: Bearer {{accessToken}}
 
 ### Create product
 POST {{baseUrl}}/api/products
 Content-Type: application/json
+Authorization: Bearer {{accessToken}}
 
 {
   "name": "Weekend Duffle",
@@ -22,6 +37,7 @@ Content-Type: application/json
 ### Update product
 PUT {{baseUrl}}/api/products/1
 Content-Type: application/json
+Authorization: Bearer {{accessToken}}
 
 {
   "name": "Starter Backpack",
@@ -34,3 +50,4 @@ Content-Type: application/json
 
 ### Delete product
 DELETE {{baseUrl}}/api/products/1
+Authorization: Bearer {{accessToken}}

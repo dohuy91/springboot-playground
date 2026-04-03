@@ -2,7 +2,7 @@
 
 ## Prerequisites
 - Java 21
-- Docker (for local Postgres)
+- Docker (for local Postgres, Kafka, and Keycloak)
 
 ## Step-by-step: run locally
 1) Start Postgres with Docker Compose:
@@ -20,9 +20,19 @@ docker compose up -d
 ./gradlew bootRun --args='--spring.profiles.active=dev'
 ```
 
-4) Verify the API is up:
+4) Get an access token from Keycloak:
+```bash
+curl --request POST "http://localhost:8081/realms/playground/protocol/openid-connect/token" \
+  --header "Content-Type: application/x-www-form-urlencoded" \
+  --data-urlencode "grant_type=password" \
+  --data-urlencode "client_id=springboot-playground-api" \
+  --data-urlencode "username=playground-user" \
+  --data-urlencode "password=playground"
+```
+
+5) Verify the API is up (use Bearer token from step 4):
 - Open `requests.http` in your IDE (IntelliJ/VS Code HTTP client) and run the requests.
-- Or hit `http://localhost:8080/api/products` in your browser or with curl.
+- Or call `http://localhost:8080/api/products` with `Authorization: Bearer <access_token>`.
 
 ## Migration behavior
 - Flyway runs automatically when the application starts.
@@ -44,3 +54,4 @@ docker compose down
 ## Notes
 - Database connection settings live in `src/main/resources/application.properties`.
 - Profile-specific Flyway settings are in `src/main/resources/application-dev.properties`.
+- Local Keycloak realm bootstrap is in `keycloak-realm-playground.json`.
