@@ -1,20 +1,23 @@
 package com.springbootplayground.common.web;
 
-import java.time.Instant;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import com.springbootplayground.common.clock.ClockProvider;
 import com.springbootplayground.common.exception.AlreadyExistsException;
 import com.springbootplayground.common.exception.BusinessException;
 import com.springbootplayground.common.exception.NotFoundException;
 
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 
 @ControllerAdvice
+@RequiredArgsConstructor
 public class GlobalExceptionHandler {
+
+    private final ClockProvider clockProvider;
 
     @ExceptionHandler(BusinessException.class)
     public ResponseEntity<ErrorResponse> handleBusinessException(
@@ -23,7 +26,7 @@ public class GlobalExceptionHandler {
     ) {
         HttpStatus status = mapStatus(exception);
         ErrorResponse response = new ErrorResponse(
-                Instant.now(),
+                clockProvider.now(),
                 status.value(),
                 status.getReasonPhrase(),
                 exception.getMessage(),
@@ -38,14 +41,5 @@ public class GlobalExceptionHandler {
             case AlreadyExistsException _ -> HttpStatus.CONFLICT;
             default -> HttpStatus.BAD_REQUEST;
         };
-    }
-
-    public record ErrorResponse(
-            Instant timestamp,
-            int status,
-            String error,
-            String message,
-            String path
-    ) {
     }
 }
